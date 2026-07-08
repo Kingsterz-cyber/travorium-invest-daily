@@ -1,7 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { motion } from "framer-motion";
 import { Header } from "@/components/travorium/Header";
 import { Footer } from "@/components/travorium/Footer";
 import { ArrowRight, CheckCircle2, Gift, ShieldCheck, Sparkles, TrendingUp, UserPlus, Wallet } from "lucide-react";
+import { containerVariants, itemVariants } from "@/lib/animations";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -31,7 +33,10 @@ function Landing() {
 
 function Hero() {
   return (
-    <section
+    <motion.section
+      initial={{ y: 30, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
       className="relative overflow-hidden pt-10 pb-24 md:pt-20"
       style={{ background: "var(--gradient-hero)" }}
     >
@@ -39,28 +44,52 @@ function Hero() {
       <div className="pointer-events-none absolute -right-24 top-48 h-72 w-72 rounded-full bg-green/10 blur-3xl" />
 
       <div className="mx-auto max-w-5xl px-5 text-center md:px-8">
-        <span className="inline-flex items-center gap-2 rounded-full border border-border bg-white/70 px-4 py-1.5 text-xs font-medium text-text-dark shadow-sm backdrop-blur">
+        <motion.span
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+          className="inline-flex items-center gap-2 rounded-full border border-border bg-white/70 px-4 py-1.5 text-xs font-medium text-text-dark shadow-sm backdrop-blur"
+        >
           <Sparkles size={14} className="text-gold-dark" /> Trusted by 500+ Rwandan investors
-        </span>
+        </motion.span>
 
-        <h1 className="mt-6 text-4xl leading-[1.05] font-bold text-text-dark md:text-6xl lg:text-7xl">
+        <motion.h1
+          initial={{ y: 30, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.8, delay: 0.3 }}
+          className="mt-6 text-4xl leading-[1.05] font-bold text-text-dark md:text-6xl lg:text-7xl"
+        >
           Your money deserves a place that <span className="italic text-gold-dark">feels safe</span>
-        </h1>
+        </motion.h1>
 
-        <p className="mx-auto mt-6 max-w-2xl text-base text-text-gray md:text-lg">
+        <motion.p
+          initial={{ y: 30, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.8, delay: 0.4 }}
+          className="mx-auto mt-6 max-w-2xl text-base text-text-gray md:text-lg"
+        >
           Invest daily with TRAVORIUM from just 10,000 FRW and watch your money grow. No stress, no hidden fees — just consistent returns.
-        </p>
+        </motion.p>
 
-        <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-          <Link to="/register" className="btn-gold inline-flex items-center gap-2 rounded-full px-7 py-3.5 text-sm">
-            Start Investing Now <ArrowRight size={16} />
-          </Link>
-          <a href="#how" className="inline-flex items-center gap-2 rounded-full border border-text-dark/15 bg-white px-7 py-3.5 text-sm font-semibold text-text-dark transition hover:border-text-dark/40">
-            How It Works
-          </a>
-        </div>
+        <motion.div
+          initial={{ y: 30, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.8, delay: 0.5 }}
+          className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row"
+        >
+          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}>
+            <Link to="/register" className="btn-gold inline-flex items-center gap-2 rounded-full px-7 py-3.5 text-sm">
+              Start Investing Now <ArrowRight size={16} />
+            </Link>
+          </motion.div>
+          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}>
+            <a href="#how" className="inline-flex items-center gap-2 rounded-full border border-text-dark/15 bg-white px-7 py-3.5 text-sm font-semibold text-text-dark transition hover:border-text-dark/40">
+              How It Works
+            </a>
+          </motion.div>
+        </motion.div>
       </div>
-    </section>
+    </motion.section>
   );
 }
 
@@ -98,20 +127,54 @@ function HowItWorks() {
   ];
   return (
     <section id="how" className="mx-auto max-w-6xl px-5 py-24 md:px-8">
-      <div className="mb-14 text-center">
-        <span className="text-xs font-semibold tracking-[0.25em] text-gold-dark">HOW IT WORKS</span>
-        <h2 className="mt-3 text-3xl font-bold md:text-5xl">Three steps to daily returns</h2>
-      </div>
-      <div className="grid gap-6 md:grid-cols-3">
+      <motion.div
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        transition={{ duration: 0.6 }}
+        viewport={{ once: true, amount: 0.2 }}
+        className="mb-14 text-center"
+      >
+        <motion.span
+          initial={{ x: -20, opacity: 0 }}
+          whileInView={{ x: 0, opacity: 1 }}
+          transition={{ duration: 0.6 }}
+          viewport={{ once: true, amount: 0.2 }}
+          className="text-xs font-semibold tracking-[0.25em] text-gold-dark"
+        >
+          HOW IT WORKS
+        </motion.span>
+        <motion.h2
+          initial={{ y: 20, opacity: 0 }}
+          whileInView={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.6, delay: 0.1 }}
+          viewport={{ once: true, amount: 0.2 }}
+          className="mt-3 text-3xl font-bold md:text-5xl"
+        >
+          Three steps to daily returns
+        </motion.h2>
+      </motion.div>
+      <motion.div
+        initial="hidden"
+        whileInView="visible"
+        variants={containerVariants}
+        viewport={{ once: true, amount: 0.2 }}
+        className="grid gap-6 md:grid-cols-3"
+      >
         {steps.map((s, i) => (
-          <div key={s.title} className="card-lift relative rounded-3xl border border-border bg-card p-8">
+          <motion.div
+            key={s.title}
+            custom={i}
+            variants={itemVariants}
+            whileHover={{ y: -8, transition: { duration: 0.3 } }}
+            className="card-lift relative rounded-3xl border border-border bg-card p-8"
+          >
             <span className="absolute right-6 top-6 font-display text-6xl font-bold text-accent">0{i + 1}</span>
             <div className="grid h-12 w-12 place-items-center rounded-2xl bg-text-dark text-gold">{s.icon}</div>
             <h3 className="mt-6 font-display text-xl font-bold text-text-dark">{s.title}</h3>
             <p className="mt-2 text-sm text-text-gray">{s.copy}</p>
-          </div>
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
     </section>
   );
 }
@@ -126,14 +189,45 @@ function Packages() {
   return (
     <section id="about" className="bg-white py-24">
       <div className="mx-auto max-w-6xl px-5 md:px-8">
-        <div className="mb-14 text-center">
-          <span className="text-xs font-semibold tracking-[0.25em] text-gold-dark">INVESTMENT PACKAGES</span>
-          <h2 className="mt-3 text-3xl font-bold md:text-5xl">Pick a plan that fits your goals</h2>
-        </div>
-        <div className="grid gap-6 md:grid-cols-3">
-          {plans.map((p) => (
-            <div
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          transition={{ duration: 0.6 }}
+          viewport={{ once: true, amount: 0.2 }}
+          className="mb-14 text-center"
+        >
+          <motion.span
+            initial={{ x: -20, opacity: 0 }}
+            whileInView={{ x: 0, opacity: 1 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true, amount: 0.2 }}
+            className="text-xs font-semibold tracking-[0.25em] text-gold-dark"
+          >
+            INVESTMENT PACKAGES
+          </motion.span>
+          <motion.h2
+            initial={{ y: 20, opacity: 0 }}
+            whileInView={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            viewport={{ once: true, amount: 0.2 }}
+            className="mt-3 text-3xl font-bold md:text-5xl"
+          >
+            Pick a plan that fits your goals
+          </motion.h2>
+        </motion.div>
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          variants={containerVariants}
+          viewport={{ once: true, amount: 0.2 }}
+          className="grid gap-6 md:grid-cols-3"
+        >
+          {plans.map((p, idx) => (
+            <motion.div
               key={p.name}
+              custom={idx}
+              variants={itemVariants}
+              whileHover={{ y: -8, transition: { duration: 0.3 } }}
               className={`card-lift relative rounded-3xl border p-8 ${
                 p.featured
                   ? "border-transparent text-white"
@@ -157,17 +251,27 @@ function Packages() {
                 <li className="flex items-center gap-2"><CheckCircle2 size={16} className={p.featured ? "text-gold" : "text-green"} /> WhatsApp manager support</li>
                 <li className="flex items-center gap-2"><CheckCircle2 size={16} className={p.featured ? "text-gold" : "text-green"} /> Instant onboarding bonus</li>
               </ul>
-              <Link to="/register" className="btn-gold mt-8 flex items-center justify-center gap-2 rounded-full px-6 py-3 text-sm">
-                Choose Plan <ArrowRight size={16} />
-              </Link>
-            </div>
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}>
+                <Link to="/register" className="btn-gold mt-8 flex items-center justify-center gap-2 rounded-full px-6 py-3 text-sm">
+                  Choose Plan <ArrowRight size={16} />
+                </Link>
+              </motion.div>
+            </motion.div>
           ))}
-        </div>
-        <div className="mt-8 flex justify-center">
-          <Link to="/plans" className="inline-flex items-center gap-2 rounded-full border border-text-dark/15 bg-white px-6 py-3 text-sm font-semibold text-text-dark transition hover:border-text-dark/40">
-            Explore All Plans
-          </Link>
-        </div>
+        </motion.div>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.3 }}
+          viewport={{ once: true, amount: 0.2 }}
+          className="mt-8 flex justify-center"
+        >
+          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}>
+            <Link to="/plans" className="inline-flex items-center gap-2 rounded-full border border-text-dark/15 bg-white px-6 py-3 text-sm font-semibold text-text-dark transition hover:border-text-dark/40">
+              Explore All Plans
+            </Link>
+          </motion.div>
+        </motion.div>
       </div>
     </section>
   );
@@ -181,13 +285,54 @@ function Testimonials() {
   ];
   return (
     <section id="community" className="mx-auto max-w-6xl px-5 py-24 md:px-8">
-      <div className="mb-14 text-center">
-        <span className="text-xs font-semibold tracking-[0.25em] text-gold-dark">COMMUNITY</span>
-        <h2 className="mt-3 text-3xl font-bold md:text-5xl">Stories from real investors</h2>
-      </div>
-      <div className="grid gap-6 md:grid-cols-3">
+      <motion.div
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        transition={{ duration: 0.6 }}
+        viewport={{ once: true, amount: 0.2 }}
+        className="mb-14 text-center"
+      >
+        <motion.span
+          initial={{ x: -20, opacity: 0 }}
+          whileInView={{ x: 0, opacity: 1 }}
+          transition={{ duration: 0.6 }}
+          viewport={{ once: true, amount: 0.2 }}
+          className="text-xs font-semibold tracking-[0.25em] text-gold-dark"
+        >
+          COMMUNITY
+        </motion.span>
+        <motion.h2
+          initial={{ y: 20, opacity: 0 }}
+          whileInView={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.6, delay: 0.1 }}
+          viewport={{ once: true, amount: 0.2 }}
+          className="mt-3 text-3xl font-bold md:text-5xl"
+        >
+          Stories from real investors
+        </motion.h2>
+      </motion.div>
+      <motion.div
+        initial="hidden"
+        whileInView="visible"
+        variants={containerVariants}
+        viewport={{ once: true, amount: 0.2 }}
+        className="grid gap-6 md:grid-cols-3"
+      >
         {items.map((t, i) => (
-          <div key={t.name} className="card-lift rounded-3xl border border-border bg-card p-7">
+          <motion.div
+            key={t.name}
+            custom={i}
+            variants={
+              i === 1
+                ? itemVariants
+                : {
+                    hidden: { x: i === 0 ? -40 : 40, opacity: 0 },
+                    visible: { x: 0, opacity: 1, transition: { duration: 0.6 } },
+                  }
+            }
+            whileHover={{ y: -8, transition: { duration: 0.3 } }}
+            className="card-lift rounded-3xl border border-border bg-card p-7"
+          >
             <ShieldCheck className="text-gold-dark" size={22} />
             <p className="mt-4 text-[15px] leading-relaxed text-text-dark">"{t.quote}"</p>
             <div className="mt-6 flex items-center gap-3">
@@ -202,9 +347,9 @@ function Testimonials() {
                 <p className="text-xs text-text-gray">{t.city}</p>
               </div>
             </div>
-          </div>
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
     </section>
   );
 }
