@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { Header } from "@/components/travorium/Header";
 import { Footer } from "@/components/travorium/Footer";
+import { Counter } from "@/components/ui/counter";
 import { ArrowRight, CheckCircle2, Gift, ShieldCheck, Sparkles, TrendingUp, UserPlus, Wallet } from "lucide-react";
 import { containerVariants, itemVariants } from "@/lib/animations";
 
@@ -95,24 +96,63 @@ function Hero() {
 
 function StatsCard() {
   const stats = [
-    { icon: <UserPlus size={18} />, label: "Total Investors", value: "500+", delta: "+15%" },
-    { icon: <Wallet size={18} />, label: "Daily Payouts", value: "2.4M FRW", delta: "+8%" },
-    { icon: <TrendingUp size={18} />, label: "Active Members", value: "156", delta: "+9%" },
+    { 
+      icon: <UserPlus size={18} />, 
+      label: "Total Investors", 
+      target: 500,
+      duration: 2,
+      delta: "+15%",
+      format: (value: number) => `${value}+`
+    },
+    { 
+      icon: <Wallet size={18} />, 
+      label: "Daily Payouts", 
+      target: 2400000,
+      duration: 2.5,
+      delta: "+8%",
+      format: (value: number) => {
+        if (value >= 1000000) {
+          return (value / 1000000).toFixed(1) + "M";
+        }
+        return value.toString();
+      }
+    },
+    { 
+      icon: <TrendingUp size={18} />, 
+      label: "Active Members", 
+      target: 156,
+      duration: 1.8,
+      delta: "+9%",
+      format: (value: number) => value.toString()
+    },
   ];
   return (
     <div className="relative -mt-16 px-5 md:px-8">
       <div className="mx-auto grid max-w-5xl grid-cols-1 gap-px overflow-hidden rounded-3xl bg-border shadow-[0_20px_60px_-20px_rgba(10,10,26,0.15)] md:grid-cols-3">
         {stats.map((s) => (
-          <div key={s.label} className="flex flex-col justify-between gap-4 bg-white p-6">
+          <motion.div
+            key={s.label}
+            initial={{ opacity: 0, y: 10 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true, amount: 0.3 }}
+            className="flex flex-col justify-between gap-4 bg-white p-6"
+          >
             <div className="flex items-center gap-2 text-text-gray">
               <span className="grid h-8 w-8 place-items-center rounded-full bg-accent text-gold-dark">{s.icon}</span>
               <span className="text-sm">{s.label}</span>
             </div>
             <div className="flex items-baseline gap-2">
-              <span className="font-display text-3xl font-bold text-text-dark md:text-4xl">{s.value}</span>
+              <Counter
+                from={0}
+                to={s.target}
+                duration={s.duration}
+                format={s.format}
+                className="font-display text-3xl font-bold text-text-dark md:text-4xl"
+              />
               <span className="rounded-full bg-green/10 px-2 py-0.5 text-xs font-semibold text-green">{s.delta} ↑</span>
             </div>
-          </div>
+          </motion.div>
         ))}
       </div>
     </div>
