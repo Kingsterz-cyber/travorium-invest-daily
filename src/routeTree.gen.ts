@@ -9,8 +9,26 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as WhatsappRouteImport } from './routes/whatsapp'
+import { Route as RegisterRouteImport } from './routes/register'
+import { Route as PaymentRouteImport } from './routes/payment'
 import { Route as IndexRouteImport } from './routes/index'
 
+const WhatsappRoute = WhatsappRouteImport.update({
+  id: '/whatsapp',
+  path: '/whatsapp',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RegisterRoute = RegisterRouteImport.update({
+  id: '/register',
+  path: '/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PaymentRoute = PaymentRouteImport.update({
+  id: '/payment',
+  path: '/payment',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -19,28 +37,61 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/payment': typeof PaymentRoute
+  '/register': typeof RegisterRoute
+  '/whatsapp': typeof WhatsappRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/payment': typeof PaymentRoute
+  '/register': typeof RegisterRoute
+  '/whatsapp': typeof WhatsappRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/payment': typeof PaymentRoute
+  '/register': typeof RegisterRoute
+  '/whatsapp': typeof WhatsappRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/payment' | '/register' | '/whatsapp'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/payment' | '/register' | '/whatsapp'
+  id: '__root__' | '/' | '/payment' | '/register' | '/whatsapp'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  PaymentRoute: typeof PaymentRoute
+  RegisterRoute: typeof RegisterRoute
+  WhatsappRoute: typeof WhatsappRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/whatsapp': {
+      id: '/whatsapp'
+      path: '/whatsapp'
+      fullPath: '/whatsapp'
+      preLoaderRoute: typeof WhatsappRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/register': {
+      id: '/register'
+      path: '/register'
+      fullPath: '/register'
+      preLoaderRoute: typeof RegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/payment': {
+      id: '/payment'
+      path: '/payment'
+      fullPath: '/payment'
+      preLoaderRoute: typeof PaymentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -53,6 +104,9 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  PaymentRoute: PaymentRoute,
+  RegisterRoute: RegisterRoute,
+  WhatsappRoute: WhatsappRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
