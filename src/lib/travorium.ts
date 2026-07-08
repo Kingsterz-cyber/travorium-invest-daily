@@ -6,7 +6,6 @@ export type TravoriumUser = {
   phone: string;
   email?: string;
   district: string;
-  referralCode?: string;
   registeredAt: string;
 };
 
@@ -40,7 +39,7 @@ export function getPayment(): TravoriumPayment | null {
 }
 
 export function buildWhatsappMessage(name: string) {
-  return `Muraho, ndi ${name} numaze kwishyura 10,000 FRW kuri TRAVORIUM. Hano hari screenshot yanjye.`;
+  return `Muraho, ndi ${name} numaze kwishyura 3,900 FRW kuri TRAVORIUM. Hano hari screenshot yanjye.`;
 }
 export function buildWhatsappUrl(name: string) {
   return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(buildWhatsappMessage(name))}`;

@@ -23,7 +23,6 @@ const schema = z.object({
   phone: z.string().trim().min(9, "Enter a valid phone number").max(20),
   email: z.string().trim().email("Invalid email").max(120).optional().or(z.literal("")),
   district: z.string().min(1, "Please select a district"),
-  referralCode: z.string().trim().max(40).optional().or(z.literal("")),
   agree: z.literal(true, { errorMap: () => ({ message: "You must accept the terms" }) }),
 });
 type FormValues = z.infer<typeof schema>;
@@ -45,7 +44,6 @@ function Register() {
       phone: v.phone,
       email: v.email || undefined,
       district: v.district,
-      referralCode: v.referralCode || undefined,
       registeredAt: new Date().toISOString(),
     });
     await new Promise((r) => setTimeout(r, 700));
@@ -82,9 +80,6 @@ function Register() {
                 <option value="" disabled>Select district</option>
                 {districts.map((d) => <option key={d} value={d}>{d}</option>)}
               </select>
-            </Field>
-            <Field label="Referral Code (optional)" error={errors.referralCode?.message}>
-              <input {...register("referralCode")} placeholder="Enter referral code" className="input" />
             </Field>
 
             <label className="flex items-start gap-3 pt-1 text-sm text-text-dark">

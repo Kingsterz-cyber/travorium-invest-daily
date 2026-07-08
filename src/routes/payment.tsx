@@ -9,7 +9,7 @@ export const Route = createFileRoute("/payment")({
   head: () => ({
     meta: [
       { title: "Payment — TRAVORIUM" },
-      { name: "description", content: "Complete your TRAVORIUM registration by paying 10,000 FRW via MTN or Airtel Money." },
+      { name: "description", content: "Complete your TRAVORIUM registration by paying 3,900 FRW via MTN or Airtel Money." },
     ],
   }),
   component: Payment,
@@ -17,6 +17,7 @@ export const Route = createFileRoute("/payment")({
 
 const MTN_CODE = "*182*8*1*2159393#";
 const AIRTEL_CODE = "*500*1*1*0733495838#";
+const REGISTRATION_AMOUNT = 3900;
 
 function Payment() {
   const navigate = useNavigate();
@@ -56,7 +57,7 @@ function Payment() {
   const proceed = () => {
     if (!screenshot) return;
     savePayment({
-      amount: 10000,
+      amount: REGISTRATION_AMOUNT,
       method: method || "MTN",
       screenshot,
       submittedAt: new Date().toISOString(),
@@ -83,7 +84,7 @@ function Payment() {
 
         {/* Kinyarwanda instructions */}
         <div className="mt-6 rounded-3xl border border-gold/40 bg-accent p-6">
-          <p className="font-semibold text-text-dark">WIYANDIKISHA MURI TRAVORIUM COMPANY LTD BYAGENZE NEZA 🙏</p>
+          <p className="font-semibold text-text-dark">KWIYANDIKISHA MURI TRAVORIUM COMPANY LTD BYAGENZE NEZA 🙏</p>
           <p className="mt-2 text-text-dark">IGISIGAYE NUKWISHYURA KUGIRANGO UBASHE GUHITA UHABWA BONUS YAWE ✅</p>
           <p className="mt-2 font-semibold text-text-dark">KWISHYURA BIKORWA MURUBU BURYO BUKIKIRA:</p>
         </div>
@@ -166,7 +167,7 @@ function Payment() {
           >
             <MessageCircle size={18} /> Talk to Manager on WhatsApp
           </button>
-          <p className="mt-2 text-center text-xs text-text-gray">Manager: +250 788 888 888</p>
+          <p className="mt-2 text-center text-xs text-text-gray">Manager: +256 756 330161</p>
         </div>
       </div>
     </div>
@@ -196,7 +197,7 @@ function PayCard({
         <p className="mt-1 break-all font-mono text-lg font-bold text-text-dark">{code}</p>
       </div>
       <div className="mt-3 flex justify-between text-sm">
-        <div><p className="text-text-gray">Amount</p><p className="font-semibold text-text-dark">10,000 FRW</p></div>
+        <div><p className="text-text-gray">Amount</p><p className="font-semibold text-text-dark">3,900 FRW</p></div>
         <div className="text-right"><p className="text-text-gray">Name</p><p className="font-semibold text-text-dark">{name}</p></div>
       </div>
       <div className="mt-4 grid grid-cols-2 gap-2">
