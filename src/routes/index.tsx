@@ -1,24 +1,204 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { Header } from "@/components/travorium/Header";
+import { Footer } from "@/components/travorium/Footer";
+import { ArrowRight, CheckCircle2, Gift, ShieldCheck, Sparkles, TrendingUp, UserPlus, Wallet } from "lucide-react";
 
-// No head() here: the home route inherits title/description/og/twitter from
-// __root.tsx, and ships no og:image so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
 export const Route = createFileRoute("/")({
-  component: Index,
+  head: () => ({
+    meta: [
+      { title: "TRAVORIUM — Invest Daily from 10,000 FRW in Rwanda" },
+      { name: "description", content: "TRAVORIUM COMPANY LTD helps Rwandans grow daily returns from just 10,000 FRW. Trusted, transparent, mobile-money native." },
+      { property: "og:title", content: "TRAVORIUM — Daily Investments for Rwanda" },
+      { property: "og:description", content: "Invest daily with TRAVORIUM from just 10,000 FRW and watch your money grow." },
+    ],
+  }),
+  component: Landing,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
-function Index() {
+function Landing() {
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
+    <div className="min-h-screen">
+      <Header />
+      <Hero />
+      <StatsCard />
+      <HowItWorks />
+      <Packages />
+      <Testimonials />
+      <Footer />
     </div>
+  );
+}
+
+function Hero() {
+  return (
+    <section
+      className="relative overflow-hidden pt-10 pb-24 md:pt-20"
+      style={{ background: "var(--gradient-hero)" }}
+    >
+      <div className="pointer-events-none absolute -left-24 top-24 h-72 w-72 rounded-full bg-gold/20 blur-3xl" />
+      <div className="pointer-events-none absolute -right-24 top-48 h-72 w-72 rounded-full bg-green/10 blur-3xl" />
+
+      <div className="mx-auto max-w-5xl px-5 text-center md:px-8">
+        <span className="inline-flex items-center gap-2 rounded-full border border-border bg-white/70 px-4 py-1.5 text-xs font-medium text-text-dark shadow-sm backdrop-blur">
+          <Sparkles size={14} className="text-gold-dark" /> Trusted by 500+ Rwandan investors
+        </span>
+
+        <h1 className="mt-6 text-4xl leading-[1.05] font-bold text-text-dark md:text-6xl lg:text-7xl">
+          Your money deserves a place that <span className="italic text-gold-dark">feels safe</span>
+        </h1>
+
+        <p className="mx-auto mt-6 max-w-2xl text-base text-text-gray md:text-lg">
+          Invest daily with TRAVORIUM from just 10,000 FRW and watch your money grow. No stress, no hidden fees — just consistent returns.
+        </p>
+
+        <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+          <Link to="/register" className="btn-gold inline-flex items-center gap-2 rounded-full px-7 py-3.5 text-sm">
+            Start Investing Now <ArrowRight size={16} />
+          </Link>
+          <a href="#how" className="inline-flex items-center gap-2 rounded-full border border-text-dark/15 bg-white px-7 py-3.5 text-sm font-semibold text-text-dark transition hover:border-text-dark/40">
+            How It Works
+          </a>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function StatsCard() {
+  const stats = [
+    { icon: <UserPlus size={18} />, label: "Total Investors", value: "500+", delta: "+15%" },
+    { icon: <Wallet size={18} />, label: "Daily Payouts", value: "2.4M FRW", delta: "+8%" },
+    { icon: <TrendingUp size={18} />, label: "Active Members", value: "156", delta: "+9%" },
+  ];
+  return (
+    <div className="relative -mt-16 px-5 md:px-8">
+      <div className="mx-auto grid max-w-5xl grid-cols-1 gap-px overflow-hidden rounded-3xl bg-border shadow-[0_20px_60px_-20px_rgba(10,10,26,0.15)] md:grid-cols-3">
+        {stats.map((s) => (
+          <div key={s.label} className="flex flex-col justify-between gap-4 bg-white p-6">
+            <div className="flex items-center gap-2 text-text-gray">
+              <span className="grid h-8 w-8 place-items-center rounded-full bg-accent text-gold-dark">{s.icon}</span>
+              <span className="text-sm">{s.label}</span>
+            </div>
+            <div className="flex items-baseline gap-2">
+              <span className="font-display text-3xl font-bold text-text-dark md:text-4xl">{s.value}</span>
+              <span className="rounded-full bg-green/10 px-2 py-0.5 text-xs font-semibold text-green">{s.delta} ↑</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function HowItWorks() {
+  const steps = [
+    { icon: <UserPlus />, title: "Register free", copy: "Create your free account in 2 minutes — no credit card required." },
+    { icon: <Wallet />, title: "Send 10,000 FRW", copy: "Pay via MTN or Airtel Money using the codes we provide." },
+    { icon: <Gift />, title: "Earn daily", copy: "Receive your bonus and start earning daily returns immediately." },
+  ];
+  return (
+    <section id="how" className="mx-auto max-w-6xl px-5 py-24 md:px-8">
+      <div className="mb-14 text-center">
+        <span className="text-xs font-semibold tracking-[0.25em] text-gold-dark">HOW IT WORKS</span>
+        <h2 className="mt-3 text-3xl font-bold md:text-5xl">Three steps to daily returns</h2>
+      </div>
+      <div className="grid gap-6 md:grid-cols-3">
+        {steps.map((s, i) => (
+          <div key={s.title} className="card-lift relative rounded-3xl border border-border bg-card p-8">
+            <span className="absolute right-6 top-6 font-display text-6xl font-bold text-accent">0{i + 1}</span>
+            <div className="grid h-12 w-12 place-items-center rounded-2xl bg-text-dark text-gold">{s.icon}</div>
+            <h3 className="mt-6 font-display text-xl font-bold text-text-dark">{s.title}</h3>
+            <p className="mt-2 text-sm text-text-gray">{s.copy}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function Packages() {
+  const plans = [
+    { name: "Starter", price: "10,000", daily: "500", monthly: "15,000", featured: false },
+    { name: "Silver", price: "50,000", daily: "3,000", monthly: "90,000", featured: true },
+    { name: "Gold", price: "100,000", daily: "7,000", monthly: "210,000", featured: false },
+  ];
+  return (
+    <section id="about" className="bg-white py-24">
+      <div className="mx-auto max-w-6xl px-5 md:px-8">
+        <div className="mb-14 text-center">
+          <span className="text-xs font-semibold tracking-[0.25em] text-gold-dark">INVESTMENT PACKAGES</span>
+          <h2 className="mt-3 text-3xl font-bold md:text-5xl">Pick a plan that fits your goals</h2>
+        </div>
+        <div className="grid gap-6 md:grid-cols-3">
+          {plans.map((p) => (
+            <div
+              key={p.name}
+              className={`card-lift relative rounded-3xl border p-8 ${
+                p.featured
+                  ? "border-transparent text-white"
+                  : "border-border bg-card text-text-dark"
+              }`}
+              style={p.featured ? { background: "linear-gradient(160deg,#064F24 0%,#0A7E3C 100%)" } : {}}
+            >
+              {p.featured && (
+                <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-gold px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-text-dark">
+                  Most popular
+                </span>
+              )}
+              <h3 className={`font-display text-2xl font-bold ${p.featured ? "text-gold" : ""}`}>{p.name}</h3>
+              <div className="mt-4 flex items-baseline gap-1">
+                <span className="font-display text-4xl font-bold">{p.price}</span>
+                <span className={`text-sm ${p.featured ? "text-white/70" : "text-text-gray"}`}>FRW</span>
+              </div>
+              <ul className={`mt-6 space-y-3 text-sm ${p.featured ? "text-white/90" : "text-text-dark"}`}>
+                <li className="flex items-center gap-2"><CheckCircle2 size={16} className={p.featured ? "text-gold" : "text-green"} /> {p.daily} FRW daily return</li>
+                <li className="flex items-center gap-2"><CheckCircle2 size={16} className={p.featured ? "text-gold" : "text-green"} /> {p.monthly} FRW monthly</li>
+                <li className="flex items-center gap-2"><CheckCircle2 size={16} className={p.featured ? "text-gold" : "text-green"} /> WhatsApp manager support</li>
+                <li className="flex items-center gap-2"><CheckCircle2 size={16} className={p.featured ? "text-gold" : "text-green"} /> Instant onboarding bonus</li>
+              </ul>
+              <Link to="/register" className="btn-gold mt-8 flex items-center justify-center gap-2 rounded-full px-6 py-3 text-sm">
+                Choose Plan <ArrowRight size={16} />
+              </Link>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Testimonials() {
+  const items = [
+    { name: "Aline U.", city: "Nyarugenge, Kigali", quote: "Nishimiye cyane. I started with 10,000 FRW and I get my daily payout on time, every day." },
+    { name: "Jean-Paul K.", city: "Gasabo, Kigali", quote: "The team on WhatsApp is very responsive. Onboarding took less than 5 minutes." },
+    { name: "Diane M.", city: "Kicukiro, Kigali", quote: "Finally an investment platform I can trust. Transparent, simple, and truly Rwandan." },
+  ];
+  return (
+    <section id="community" className="mx-auto max-w-6xl px-5 py-24 md:px-8">
+      <div className="mb-14 text-center">
+        <span className="text-xs font-semibold tracking-[0.25em] text-gold-dark">COMMUNITY</span>
+        <h2 className="mt-3 text-3xl font-bold md:text-5xl">Stories from real investors</h2>
+      </div>
+      <div className="grid gap-6 md:grid-cols-3">
+        {items.map((t, i) => (
+          <div key={t.name} className="card-lift rounded-3xl border border-border bg-card p-7">
+            <ShieldCheck className="text-gold-dark" size={22} />
+            <p className="mt-4 text-[15px] leading-relaxed text-text-dark">"{t.quote}"</p>
+            <div className="mt-6 flex items-center gap-3">
+              <div
+                className="grid h-11 w-11 place-items-center rounded-full font-semibold text-white"
+                style={{ background: `linear-gradient(135deg, ${["#0A7E3C","#B8860B","#064F24"][i]} 0%, #0A0A1A 120%)` }}
+              >
+                {t.name.charAt(0)}
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-text-dark">{t.name}</p>
+                <p className="text-xs text-text-gray">{t.city}</p>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
   );
 }
