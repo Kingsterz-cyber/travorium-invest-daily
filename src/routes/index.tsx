@@ -117,10 +117,11 @@ function HowItWorks() {
 }
 
 function Packages() {
+  // Base rate: 10,000 -> 1,500 daily => 0.15 daily rate
   const plans = [
-    { name: "Starter", price: "10,000", daily: "500", monthly: "15,000", featured: false },
-    { name: "Silver", price: "50,000", daily: "3,000", monthly: "90,000", featured: true },
-    { name: "Gold", price: "100,000", daily: "7,000", monthly: "210,000", featured: false },
+    { name: "Starter", price: "10,000", daily: "1,500", monthly: "45,000", featured: false },
+    { name: "Silver", price: "50,000", daily: "7,500", monthly: "225,000", featured: true },
+    { name: "Gold", price: "100,000", daily: "15,000", monthly: "450,000", featured: false },
   ];
   return (
     <section id="about" className="bg-white py-24">
@@ -161,6 +162,11 @@ function Packages() {
               </Link>
             </div>
           ))}
+        </div>
+        <div className="mt-8 flex justify-center">
+          <Link to="/plans" className="inline-flex items-center gap-2 rounded-full border border-text-dark/15 bg-white px-6 py-3 text-sm font-semibold text-text-dark transition hover:border-text-dark/40">
+            Explore All Plans
+          </Link>
         </div>
       </div>
     </section>

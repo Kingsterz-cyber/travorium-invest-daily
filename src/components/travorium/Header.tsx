@@ -37,7 +37,6 @@ export function Header() {
         </nav>
 
         <div className="hidden items-center gap-3 md:flex">
-          <Link to="/register" className="text-sm font-medium text-text-dark hover:opacity-70">Login</Link>
           <Link
             to="/register"
             className="btn-gold rounded-full px-5 py-2.5 text-sm"
