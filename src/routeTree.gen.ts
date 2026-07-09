@@ -9,12 +9,31 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as WithdrawSuccessRouteImport } from './routes/withdraw-success'
+import { Route as WithdrawProcessingRouteImport } from './routes/withdraw-processing'
+import { Route as WithdrawRouteImport } from './routes/withdraw'
 import { Route as WhatsappRouteImport } from './routes/whatsapp'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as PlansRouteImport } from './routes/plans'
 import { Route as PaymentRouteImport } from './routes/payment'
+import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
 
+const WithdrawSuccessRoute = WithdrawSuccessRouteImport.update({
+  id: '/withdraw-success',
+  path: '/withdraw-success',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WithdrawProcessingRoute = WithdrawProcessingRouteImport.update({
+  id: '/withdraw-processing',
+  path: '/withdraw-processing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WithdrawRoute = WithdrawRouteImport.update({
+  id: '/withdraw',
+  path: '/withdraw',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const WhatsappRoute = WhatsappRouteImport.update({
   id: '/whatsapp',
   path: '/whatsapp',
@@ -35,6 +54,11 @@ const PaymentRoute = PaymentRouteImport.update({
   path: '/payment',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -43,44 +67,109 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRoute
   '/payment': typeof PaymentRoute
   '/plans': typeof PlansRoute
   '/register': typeof RegisterRoute
   '/whatsapp': typeof WhatsappRoute
+  '/withdraw': typeof WithdrawRoute
+  '/withdraw-processing': typeof WithdrawProcessingRoute
+  '/withdraw-success': typeof WithdrawSuccessRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRoute
   '/payment': typeof PaymentRoute
   '/plans': typeof PlansRoute
   '/register': typeof RegisterRoute
   '/whatsapp': typeof WhatsappRoute
+  '/withdraw': typeof WithdrawRoute
+  '/withdraw-processing': typeof WithdrawProcessingRoute
+  '/withdraw-success': typeof WithdrawSuccessRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRoute
   '/payment': typeof PaymentRoute
   '/plans': typeof PlansRoute
   '/register': typeof RegisterRoute
   '/whatsapp': typeof WhatsappRoute
+  '/withdraw': typeof WithdrawRoute
+  '/withdraw-processing': typeof WithdrawProcessingRoute
+  '/withdraw-success': typeof WithdrawSuccessRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/payment' | '/plans' | '/register' | '/whatsapp'
+  fullPaths:
+    | '/'
+    | '/dashboard'
+    | '/payment'
+    | '/plans'
+    | '/register'
+    | '/whatsapp'
+    | '/withdraw'
+    | '/withdraw-processing'
+    | '/withdraw-success'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/payment' | '/plans' | '/register' | '/whatsapp'
-  id: '__root__' | '/' | '/payment' | '/plans' | '/register' | '/whatsapp'
+  to:
+    | '/'
+    | '/dashboard'
+    | '/payment'
+    | '/plans'
+    | '/register'
+    | '/whatsapp'
+    | '/withdraw'
+    | '/withdraw-processing'
+    | '/withdraw-success'
+  id:
+    | '__root__'
+    | '/'
+    | '/dashboard'
+    | '/payment'
+    | '/plans'
+    | '/register'
+    | '/whatsapp'
+    | '/withdraw'
+    | '/withdraw-processing'
+    | '/withdraw-success'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  DashboardRoute: typeof DashboardRoute
   PaymentRoute: typeof PaymentRoute
   PlansRoute: typeof PlansRoute
   RegisterRoute: typeof RegisterRoute
   WhatsappRoute: typeof WhatsappRoute
+  WithdrawRoute: typeof WithdrawRoute
+  WithdrawProcessingRoute: typeof WithdrawProcessingRoute
+  WithdrawSuccessRoute: typeof WithdrawSuccessRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/withdraw-success': {
+      id: '/withdraw-success'
+      path: '/withdraw-success'
+      fullPath: '/withdraw-success'
+      preLoaderRoute: typeof WithdrawSuccessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/withdraw-processing': {
+      id: '/withdraw-processing'
+      path: '/withdraw-processing'
+      fullPath: '/withdraw-processing'
+      preLoaderRoute: typeof WithdrawProcessingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/withdraw': {
+      id: '/withdraw'
+      path: '/withdraw'
+      fullPath: '/withdraw'
+      preLoaderRoute: typeof WithdrawRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/whatsapp': {
       id: '/whatsapp'
       path: '/whatsapp'
@@ -109,6 +198,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PaymentRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -121,21 +217,15 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  DashboardRoute: DashboardRoute,
   PaymentRoute: PaymentRoute,
   PlansRoute: PlansRoute,
   RegisterRoute: RegisterRoute,
   WhatsappRoute: WhatsappRoute,
+  WithdrawRoute: WithdrawRoute,
+  WithdrawProcessingRoute: WithdrawProcessingRoute,
+  WithdrawSuccessRoute: WithdrawSuccessRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

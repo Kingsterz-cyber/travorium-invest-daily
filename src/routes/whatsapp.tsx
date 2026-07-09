@@ -70,6 +70,12 @@ function WhatsappPage() {
           >
             <Copy size={16} /> Copy Message
           </button>
+          <Link
+            to="/dashboard"
+            className="btn-gold mt-3 flex w-full items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-semibold"
+          >
+            Continue to Dashboard →
+          </Link>
 
           <p className="mt-6 rounded-xl bg-accent p-3 text-xs text-text-dark">
             After sending your screenshot, the manager will verify and send you the platform link within 5 minutes.
