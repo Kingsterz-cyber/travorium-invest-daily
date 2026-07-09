@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WithdrawSuccessRouteImport } from './routes/withdraw-success'
+import { Route as WithdrawProcessingRouteImport } from './routes/withdraw-processing'
 import { Route as WithdrawRouteImport } from './routes/withdraw'
 import { Route as WhatsappRouteImport } from './routes/whatsapp'
 import { Route as RegisterRouteImport } from './routes/register'
@@ -21,6 +22,11 @@ import { Route as IndexRouteImport } from './routes/index'
 const WithdrawSuccessRoute = WithdrawSuccessRouteImport.update({
   id: '/withdraw-success',
   path: '/withdraw-success',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WithdrawProcessingRoute = WithdrawProcessingRouteImport.update({
+  id: '/withdraw-processing',
+  path: '/withdraw-processing',
   getParentRoute: () => rootRouteImport,
 } as any)
 const WithdrawRoute = WithdrawRouteImport.update({
@@ -67,6 +73,7 @@ export interface FileRoutesByFullPath {
   '/register': typeof RegisterRoute
   '/whatsapp': typeof WhatsappRoute
   '/withdraw': typeof WithdrawRoute
+  '/withdraw-processing': typeof WithdrawProcessingRoute
   '/withdraw-success': typeof WithdrawSuccessRoute
 }
 export interface FileRoutesByTo {
@@ -77,6 +84,7 @@ export interface FileRoutesByTo {
   '/register': typeof RegisterRoute
   '/whatsapp': typeof WhatsappRoute
   '/withdraw': typeof WithdrawRoute
+  '/withdraw-processing': typeof WithdrawProcessingRoute
   '/withdraw-success': typeof WithdrawSuccessRoute
 }
 export interface FileRoutesById {
@@ -88,6 +96,7 @@ export interface FileRoutesById {
   '/register': typeof RegisterRoute
   '/whatsapp': typeof WhatsappRoute
   '/withdraw': typeof WithdrawRoute
+  '/withdraw-processing': typeof WithdrawProcessingRoute
   '/withdraw-success': typeof WithdrawSuccessRoute
 }
 export interface FileRouteTypes {
@@ -100,6 +109,7 @@ export interface FileRouteTypes {
     | '/register'
     | '/whatsapp'
     | '/withdraw'
+    | '/withdraw-processing'
     | '/withdraw-success'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -110,6 +120,7 @@ export interface FileRouteTypes {
     | '/register'
     | '/whatsapp'
     | '/withdraw'
+    | '/withdraw-processing'
     | '/withdraw-success'
   id:
     | '__root__'
@@ -120,6 +131,7 @@ export interface FileRouteTypes {
     | '/register'
     | '/whatsapp'
     | '/withdraw'
+    | '/withdraw-processing'
     | '/withdraw-success'
   fileRoutesById: FileRoutesById
 }
@@ -131,6 +143,7 @@ export interface RootRouteChildren {
   RegisterRoute: typeof RegisterRoute
   WhatsappRoute: typeof WhatsappRoute
   WithdrawRoute: typeof WithdrawRoute
+  WithdrawProcessingRoute: typeof WithdrawProcessingRoute
   WithdrawSuccessRoute: typeof WithdrawSuccessRoute
 }
 
@@ -141,6 +154,13 @@ declare module '@tanstack/react-router' {
       path: '/withdraw-success'
       fullPath: '/withdraw-success'
       preLoaderRoute: typeof WithdrawSuccessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/withdraw-processing': {
+      id: '/withdraw-processing'
+      path: '/withdraw-processing'
+      fullPath: '/withdraw-processing'
+      preLoaderRoute: typeof WithdrawProcessingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/withdraw': {
@@ -203,6 +223,7 @@ const rootRouteChildren: RootRouteChildren = {
   RegisterRoute: RegisterRoute,
   WhatsappRoute: WhatsappRoute,
   WithdrawRoute: WithdrawRoute,
+  WithdrawProcessingRoute: WithdrawProcessingRoute,
   WithdrawSuccessRoute: WithdrawSuccessRoute,
 }
 export const routeTree = rootRouteImport
