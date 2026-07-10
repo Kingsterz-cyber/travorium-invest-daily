@@ -29,6 +29,10 @@ function Dashboard() {
   const dayKey = getTodayDayKey();
   const dailyAds = getTodayDailyAds();
 
+  // Defensive: avoid runtime crashes when dailyAds is undefined or wallet is malformed.
+  const safeDailyAds = Array.isArray(dailyAds) ? dailyAds : [];
+
+
   // Ensure we reset daily counters when day changes.
   useEffect(() => {
     if (!wallet) return;
@@ -96,7 +100,7 @@ function Dashboard() {
         </div>
 
         <div className="mt-4 grid gap-4 md:grid-cols-2">
-          {dailyAds.map((ad) => {
+          {safeDailyAds.map((ad) => {
             const isDone = isTaskCompletedForDay(ad.id);
             return (
               <TaskCard
@@ -108,6 +112,7 @@ function Dashboard() {
             );
           })}
         </div>
+
 
 
         {/* Quick actions */}
@@ -412,7 +417,7 @@ function AdModal({
           </AnimatePresence>
 
           <button
-            onClick={() => (done ? onComplete(task.id) : onClose())}
+            onClick={() => (done ? onComplete(ad.id) : onClose())}
             className={`mt-5 w-full rounded-full py-3 text-sm font-semibold ${done ? "btn-gold" : "border border-border bg-white text-text-dark hover:border-gold"}`}
           >
             {done ? "Claim & Close" : "Close"}
