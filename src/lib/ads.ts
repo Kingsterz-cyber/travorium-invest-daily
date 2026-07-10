@@ -223,19 +223,29 @@ function seeded(seed: number) {
   };
 }
 
-// Returns 5 unique ads for the given date (all users see same selection per day)
+// Returns `count` unique ads for the given date (all users see same selection per day)
 export function getDailyAds(forDate = new Date(), count = 5): Ad[] {
+  // Safety guard: never crash if the pool isn't available for any reason.
+  const poolBase = Array.isArray(AD_POOL) ? AD_POOL : [];
+  if (poolBase.length === 0) return [];
+
   const today = new Date(forDate.getFullYear(), forDate.getMonth(), forDate.getDate());
-  const dayOfYear = Math.floor((today.getTime() - new Date(today.getFullYear(), 0, 0).getTime()) / 86400000);
+  const dayOfYear = Math.floor(
+    (today.getTime() - new Date(today.getFullYear(), 0, 0).getTime()) / 86400000
+  );
+
   const rng = seeded(dayOfYear + today.getFullYear());
-  // Create deterministic shuffle
-  const pool = AD_POOL.slice();
+
+  // Deterministic shuffle
+  const pool = poolBase.slice();
   for (let i = pool.length - 1; i > 0; i--) {
     const j = Math.floor(rng() * (i + 1));
     [pool[i], pool[j]] = [pool[j], pool[i]];
   }
-  return pool.slice(0, count);
+
+  return pool.slice(0, Math.min(count, pool.length));
 }
+
 
 export function getDayKey(forDate = new Date()) {
   const d = new Date(forDate.getFullYear(), forDate.getMonth(), forDate.getDate());
