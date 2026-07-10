@@ -162,7 +162,7 @@ function StatsCard() {
 function HowItWorks() {
   const steps = [
     { icon: <UserPlus />, title: "Register free", copy: "Create your free account in 2 minutes — no credit card required." },
-    { icon: <Wallet />, title: "Send 10,000 FRW", copy: "Pay via MTN or Airtel Money using the codes we provide." },
+    { icon: <Wallet />, title: "Send 3,900 FRW", copy: "Pay via MTN or Airtel Money using the codes we provide." },
     { icon: <Gift />, title: "Earn daily", copy: "Receive your bonus and start earning daily returns immediately." },
   ];
   return (

@@ -4,8 +4,12 @@ import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { TravoriumLogo } from "@/components/travorium/Logo";
 import { getUser } from "@/lib/travorium";
-import { completeTask, frw, getWallet, type DailyTask, type WalletState } from "@/lib/wallet";
+import { completeTask, frw, getWallet, isTaskCompletedForDay, ensureDailyWallet, TASK_EARNINGS_FRW, DAILY_TASK_COUNT } from "@/lib/wallet";
+import { getTodayDailyAds, getTodayDayKey } from "@/lib/daily";
+
 import { Wallet, TrendingUp, History, Users, MessageCircle, Flame, X, Play, CheckCircle2, LogOut } from "lucide-react";
+import type { WalletState } from "@/lib/wallet";
+import type { DailyAdTask } from "@/lib/typed-daily-task";
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({
@@ -21,7 +25,18 @@ function Dashboard() {
   const navigate = useNavigate();
   const [name, setName] = useState("Investor");
   const [wallet, setWallet] = useState<WalletState | null>(null);
-  const [activeTask, setActiveTask] = useState<DailyTask | null>(null);
+  const [activeAdId, setActiveAdId] = useState<number | null>(null);
+  const dayKey = getTodayDayKey();
+  const dailyAds = getTodayDailyAds();
+
+  // Ensure we reset daily counters when day changes.
+  useEffect(() => {
+    if (!wallet) return;
+    const w = ensureDailyWallet(dayKey);
+    setWallet({ ...w });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dayKey]);
+
 
   useEffect(() => {
     const u = getUser();
@@ -36,14 +51,15 @@ function Dashboard() {
 
   if (!wallet) return null;
 
-  const onTaskComplete = (id: number) => {
-    const w = completeTask(id);
+  const onAdComplete = (adId: number) => {
+    const w = completeTask(adId);
     setWallet({ ...w });
-    setActiveTask(null);
-    toast.success("Task Completed! +100 FRW earned");
+    setActiveAdId(null);
+    toast.success(`Task Completed! +${TASK_EARNINGS_FRW} FRW earned`);
   };
 
-  const dailyGoal = 500;
+  const dailyGoal = TASK_EARNINGS_FRW * DAILY_TASK_COUNT;
+
 
   return (
     <div className="min-h-screen bg-background pb-24">
@@ -76,14 +92,23 @@ function Dashboard() {
         {/* Tasks */}
         <div className="mt-10 flex items-end justify-between">
           <h2 className="font-display text-2xl font-bold text-text-dark">Today's Tasks</h2>
-          <span className="text-xs font-semibold text-text-gray">{wallet.tasks.filter(t => t.status === "completed").length} / {wallet.tasks.length} done</span>
+          <span className="text-xs font-semibold text-text-gray">{wallet.completedTaskAdIds.length} / {DAILY_TASK_COUNT} done</span>
         </div>
 
         <div className="mt-4 grid gap-4 md:grid-cols-2">
-          {wallet.tasks.map((t) => (
-            <TaskCard key={t.id} task={t} onStart={() => setActiveTask(t)} />
-          ))}
+          {dailyAds.map((ad) => {
+            const isDone = isTaskCompletedForDay(ad.id);
+            return (
+              <TaskCard
+                key={ad.id}
+                ad={ad}
+                done={isDone}
+                onStart={() => setActiveAdId(ad.id)}
+              />
+            );
+          })}
         </div>
+
 
         {/* Quick actions */}
         <div className="mt-10 grid grid-cols-2 gap-3 md:grid-cols-4">
@@ -104,10 +129,16 @@ function Dashboard() {
       </div>
 
       <AnimatePresence>
-        {activeTask && (
-          <AdModal task={activeTask} onClose={() => setActiveTask(null)} onComplete={onTaskComplete} />
+        {activeAdId && (
+          <AdModal
+            ad={dailyAds.find((a) => a.id === activeAdId) ?? dailyAds[0]}
+            done={isTaskCompletedForDay(activeAdId)}
+            onClose={() => setActiveAdId(null)}
+            onComplete={(adId) => onAdComplete(adId)}
+          />
         )}
       </AnimatePresence>
+
     </div>
   );
 }
@@ -153,7 +184,8 @@ function MiniStat({ label, value }: { label: string; value: string }) {
 
 function ProgressCard({ w, goal }: { w: WalletState; goal: number }) {
   const pct = Math.min(100, (w.todayEarnings / goal) * 100);
-  const done = w.tasks.filter((t) => t.status === "completed").length;
+  const done = w.completedTaskAdIds.length;
+
   return (
     <div className="rounded-3xl border border-border bg-card p-6 md:p-8">
       <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-green">
@@ -174,69 +206,87 @@ function ProgressCard({ w, goal }: { w: WalletState; goal: number }) {
       <div className="mt-6 flex items-center justify-between rounded-2xl bg-accent p-4">
         <div>
           <p className="text-xs uppercase tracking-widest text-text-gray">Tasks</p>
-          <p className="font-display text-2xl font-bold text-text-dark">{done}/5</p>
+          <p className="font-display text-2xl font-bold text-text-dark">{done}/{DAILY_TASK_COUNT}</p>
         </div>
         <div className="flex gap-1">
-          {w.tasks.map((t) => (
-            <div key={t.id} className={`h-8 w-2 rounded-full ${t.status === "completed" ? "bg-green" : "bg-border"}`} />
+          {Array.from({ length: DAILY_TASK_COUNT }).map((_, i) => (
+            <div
+              key={i}
+              className={`h-8 w-2 rounded-full ${i < done ? "bg-green" : "bg-border"}`}
+            />
           ))}
         </div>
       </div>
+
     </div>
   );
 }
 
-function TaskCard({ task, onStart }: { task: DailyTask; onStart: () => void }) {
-  const isDone = task.status === "completed";
+function TaskCard({
+  ad,
+  done,
+  onStart,
+}: {
+  ad: { id: number; title: string; desc: string; image: string; link: string };
+  done: boolean;
+  onStart: () => void;
+}) {
   return (
     <motion.div
-      whileHover={{ y: isDone ? 0 : -4 }}
+      whileHover={{ y: done ? 0 : -4 }}
       className={`group relative overflow-hidden rounded-3xl border bg-card p-6 shadow-[0_1px_3px_rgba(10,10,26,0.04),0_8px_24px_rgba(10,10,26,0.06)] transition ${
-        isDone ? "border-green/40 bg-green/5" : "border-border"
+        done ? "border-green/40 bg-green/5" : "border-border"
       }`}
     >
       <div className="flex items-start gap-4">
-        <div className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-accent text-3xl">
-          {task.emoji}
+        <div className="grid h-14 w-14 shrink-0 place-items-center overflow-hidden rounded-2xl bg-accent">
+          <img src={ad.image} alt={ad.title} className="h-full w-full object-cover" />
         </div>
         <div className="min-w-0 flex-1">
-          <h3 className="truncate font-display text-lg font-bold text-text-dark">{task.name}</h3>
-          <p className="mt-0.5 text-sm text-text-gray">{task.description}</p>
-          <p className="mt-1 text-xs text-text-gray">⏱️ {task.duration} seconds</p>
+          <h3 className="truncate font-display text-lg font-bold text-text-dark">{ad.title}</h3>
+          <p className="mt-0.5 line-clamp-3 text-sm text-text-gray">{ad.desc}</p>
         </div>
       </div>
+
 
       <div className="mt-4">
         <div className="mb-2 flex items-center justify-between text-xs font-medium text-text-gray">
           <span>Loading</span>
-          <span className="font-mono text-text-dark">{task.progress}%</span>
+          <span className="font-mono text-text-dark">{done ? 100 : 0}%</span>
         </div>
         <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
           <div
-            className={`h-full rounded-full transition-all duration-700 ${isDone ? "bg-green" : "bg-gradient-to-r from-gold to-gold-dark"}`}
-            style={{ width: `${task.progress}%` }}
+            className={`h-full rounded-full transition-all duration-700 ${done ? "bg-green" : "bg-gradient-to-r from-gold to-gold-dark"}`}
+            style={{ width: `${done ? 100 : 0}%` }}
           />
         </div>
         <div className="mt-2 flex items-center justify-between text-xs">
           <span className="text-text-gray">Earnings</span>
-          <span className="font-semibold text-text-dark">{task.earnings} / {task.maxEarnings} FRW</span>
+          <span className="font-semibold text-text-dark">{done ? TASK_EARNINGS_FRW : 0} / {TASK_EARNINGS_FRW} FRW</span>
         </div>
       </div>
 
       <button
         onClick={onStart}
-        disabled={isDone}
+        disabled={done}
         className={`mt-5 flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold transition ${
-          isDone
-            ? "bg-green/15 text-green cursor-default"
-            : "btn-gold"
+          done ? "bg-green/15 text-green cursor-default" : "btn-gold"
         }`}
       >
-        {isDone ? <><CheckCircle2 size={16} /> Completed</> : <><Play size={14} /> Watch Ad</>}
+        {done ? (
+          <>
+            <CheckCircle2 size={16} /> Completed
+          </>
+        ) : (
+          <>
+            <Play size={14} /> Watch Ad
+          </>
+        )}
       </button>
     </motion.div>
   );
 }
+
 
 function QuickAction({ icon, label, onClick, primary }: { icon: React.ReactNode; label: string; onClick: () => void; primary?: boolean }) {
   return (
@@ -262,31 +312,44 @@ function Stat({ label, value, icon }: { label: string; value: string; icon?: Rea
   );
 }
 
-function AdModal({ task, onClose, onComplete }: { task: DailyTask; onClose: () => void; onComplete: (id: number) => void }) {
-  const [remaining, setRemaining] = useState(Math.max(3, Math.round(task.duration * (1 - task.progress / 100))));
-  const [progress, setProgress] = useState(task.progress);
-  const [earnings, setEarnings] = useState(task.earnings);
-  const [done, setDone] = useState(false);
+function AdModal({
+  ad,
+  done,
+  onClose,
+  onComplete,
+}: {
+  ad: { id: number; title: string; desc: string; image: string; link: string };
+  done: boolean;
+  onClose: () => void;
+  onComplete: (adId: number) => void;
+}) {
+  const [remaining, setRemaining] = useState(30);
+  const [progress, setProgress] = useState(0);
+  const [earnings, setEarnings] = useState(0);
+  const [internalDone, setInternalDone] = useState(false);
   const startedAt = useRef(Date.now());
-  const total = remaining;
+  const total = 30;
+
 
   useEffect(() => {
-    if (done) return;
-    const startProgress = task.progress;
-    const startEarnings = task.earnings;
+    if (done || internalDone) return;
+
     const id = setInterval(() => {
       const elapsed = (Date.now() - startedAt.current) / 1000;
-      const p = Math.min(100, startProgress + ((100 - startProgress) * elapsed) / total);
+      const p = Math.min(100, (100 * elapsed) / total);
       setProgress(Math.floor(p));
-      setEarnings(Math.floor(startEarnings + (task.maxEarnings - startEarnings) * ((p - startProgress) / (100 - startProgress || 1))));
+      setEarnings(Math.floor((TASK_EARNINGS_FRW * p) / 100));
       setRemaining(Math.max(0, Math.ceil(total - elapsed)));
+
       if (p >= 100) {
-        setDone(true);
+        setInternalDone(true);
         clearInterval(id);
       }
     }, 100);
+
     return () => clearInterval(id);
-  }, [done, task, total]);
+  }, [done, internalDone, total]);
+
 
   return (
     <motion.div
@@ -300,12 +363,19 @@ function AdModal({ task, onClose, onComplete }: { task: DailyTask; onClose: () =
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-border p-4">
-          <p className="flex items-center gap-2 font-semibold text-text-dark"><span className="text-xl">{task.emoji}</span> {task.name}</p>
-          <button onClick={onClose} className="grid h-8 w-8 place-items-center rounded-full hover:bg-muted"><X size={16} /></button>
+          <p className="flex items-center gap-2 font-semibold text-text-dark">
+            <img src={ad.image} alt={ad.title} className="h-7 w-7 rounded-full object-cover" />
+            {ad.title}
+          </p>
+          <button onClick={onClose} className="grid h-8 w-8 place-items-center rounded-full hover:bg-muted">
+            <X size={16} />
+          </button>
         </div>
 
-        <div className="relative grid h-56 place-items-center bg-gradient-to-br from-accent to-white text-6xl">
-          {task.emoji}
+        <div className="relative grid h-56 place-items-center overflow-hidden bg-gradient-to-br from-accent to-white">
+          <div className="mx-4 w-full">
+            <img src={ad.image} alt={ad.title} className="h-56 w-full object-contain" />
+          </div>
           <div className="absolute inset-x-0 bottom-3 mx-4 rounded-full bg-black/70 px-3 py-1 text-center text-xs font-medium text-white backdrop-blur">
             {done ? "Ad complete" : `⏱️ ${remaining}s remaining`}
           </div>
@@ -317,9 +387,15 @@ function AdModal({ task, onClose, onComplete }: { task: DailyTask; onClose: () =
             <span className="font-mono text-text-dark">{progress}%</span>
           </div>
           <div className="h-3 w-full overflow-hidden rounded-full bg-muted">
-            <div className={`h-full rounded-full transition-all duration-100 ${done ? "bg-green" : "bg-gradient-to-r from-gold to-gold-dark"}`} style={{ width: `${progress}%` }} />
+            <div
+              className={`h-full rounded-full transition-all duration-100 ${done ? "bg-green" : "bg-gradient-to-r from-gold to-gold-dark"}`}
+              style={{ width: `${progress}%` }}
+            />
           </div>
-          <p className="mt-2 text-center text-sm font-semibold text-text-dark">{earnings} / {task.maxEarnings} FRW</p>
+          <p className="mt-2 text-center text-sm font-semibold text-text-dark">
+            {earnings} / {TASK_EARNINGS_FRW} FRW
+          </p>
+
 
           <AnimatePresence>
             {done && (

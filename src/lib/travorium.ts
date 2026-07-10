@@ -1,5 +1,5 @@
-export const WHATSAPP_NUMBER = "256766330161";
-export const MANAGER_PHONE_DISPLAY = "+256 766 330 161";
+export const WHATSAPP_NUMBER = "";
+export const MANAGER_PHONE_DISPLAY = "";
 
 export type TravoriumUser = {
   fullName: string;
@@ -42,5 +42,7 @@ export function buildWhatsappMessage(name: string) {
   return `Muraho, ndi ${name} numaze kwishyura 3,900 FRW kuri TRAVORIUM. Hano hari screenshot yanjye.`;
 }
 export function buildWhatsappUrl(name: string) {
-  return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(buildWhatsappMessage(name))}`;
+  const numberPart = WHATSAPP_NUMBER ? `${WHATSAPP_NUMBER}` : "";
+  const separator = numberPart ? "/" : "";
+  return `https://wa.me/${separator}${numberPart}?text=${encodeURIComponent(buildWhatsappMessage(name))}`;
 }

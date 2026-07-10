@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { TravoriumLogo } from "@/components/travorium/Logo";
-import { buildWhatsappMessage, buildWhatsappUrl, getUser, MANAGER_PHONE_DISPLAY } from "@/lib/travorium";
+import { buildWhatsappMessage, buildWhatsappUrl, getUser } from "@/lib/travorium";
 import { Copy, MessageCircle, Loader2 } from "lucide-react";
 
 export const Route = createFileRoute("/whatsapp")({
@@ -80,8 +80,6 @@ function WhatsappPage() {
           <p className="mt-6 rounded-xl bg-accent p-3 text-xs text-text-dark">
             After sending your screenshot, the manager will verify and send you the platform link within 5 minutes.
           </p>
-          <p className="mt-2 text-xs text-text-gray">Manager: {MANAGER_PHONE_DISPLAY}</p>
-
           <p className="mt-8 font-display text-lg font-bold text-green-dark">
             MUHAVE IKAZE KANDI TWISHIMIYE GUKORANA NAMWE 🙏🙏
           </p>

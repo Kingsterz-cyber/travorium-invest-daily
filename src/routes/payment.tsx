@@ -167,7 +167,7 @@ function Payment() {
           >
             <MessageCircle size={18} /> Talk to Manager on WhatsApp
           </button>
-          <p className="mt-2 text-center text-xs text-text-gray">Manager: +256 756 330161</p>
+          <p className="mt-2 text-center text-xs text-text-gray">You’ll be connected to the manager after upload.</p>
         </div>
       </div>
     </div>
