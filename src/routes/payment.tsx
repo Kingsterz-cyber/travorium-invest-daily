@@ -15,7 +15,7 @@ export const Route = createFileRoute("/payment")({
   component: Payment,
 });
 
-const MTN_CODE = "*182*8*1*2159393#";
+const MTN_CODE = "*182*8*1*2158713#";
 const AIRTEL_CODE = "*500*1*1*0733495838#";
 const REGISTRATION_AMOUNT = 3900;
 
@@ -95,7 +95,7 @@ function Payment() {
             brand="MTN Mobile Money"
             brandColor="#FFCC00"
             code={MTN_CODE}
-            name="Dorothee"
+            name="Elise"
             onCopy={() => copy(MTN_CODE, "MTN code")}
             onCall={() => call("*182#")}
             onPick={() => setMethod("MTN")}
