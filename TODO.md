@@ -9,6 +9,8 @@
 - [ ] Ensure task completion credits wallet correctly and persists completed tasks for the day.
 - [ ] Align UI wording to 500 FRW/task and daily max 2,500 FRW.
 - [ ] Run typecheck/build to verify TS passes.
+- [ ] Add Vercel Analytics `<Analytics />` at the root level to track every page view.
+
 - [ ] Manually verify with local usage flow: register → dashboard → complete tasks → withdraw reflects new totals.
 
 
