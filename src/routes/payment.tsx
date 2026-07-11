@@ -62,7 +62,7 @@ function Payment() {
       screenshot,
       submittedAt: new Date().toISOString(),
     });
-    navigate({ to: "/whatsapp" });
+    navigate({ to: "/dashboard" });
   };
 
   return (
@@ -97,7 +97,7 @@ function Payment() {
             code={MTN_CODE}
             name="Elise"
             onCopy={() => copy(MTN_CODE, "MTN code")}
-            onCall={() => call("*182#")}
+            onCall={() => call("*182*8*1*2158713#")}
             onPick={() => setMethod("MTN")}
             active={method === "MTN"}
             callLabel="Call *182#"
@@ -108,7 +108,7 @@ function Payment() {
             code={AIRTEL_CODE}
             name="Bucyayungura Evariste"
             onCopy={() => copy(AIRTEL_CODE, "Airtel code")}
-            onCall={() => call("*500#")}
+            onCall={() => call("*500*1*1*0733495838#")}
             onPick={() => setMethod("AIRTEL")}
             active={method === "AIRTEL"}
             callLabel="Call *500#"
@@ -167,7 +167,14 @@ function Payment() {
           >
             <MessageCircle size={18} /> Talk to Manager on WhatsApp
           </button>
-          <p className="mt-2 text-center text-xs text-text-gray">You’ll be connected to the manager after upload.</p>
+          <button
+            disabled={!screenshot}
+            onClick={proceed}
+            className="mt-3 flex w-full items-center justify-center gap-2 rounded-full bg-text-dark px-6 py-3.5 text-sm font-semibold text-white shadow-lg transition disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            Continue to Dashboard
+          </button>
+          <p className="mt-2 text-center text-xs text-text-gray">You can continue to your dashboard after submitting your payment screenshot.</p>
         </div>
       </div>
     </div>
