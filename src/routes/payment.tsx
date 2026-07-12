@@ -95,9 +95,9 @@ function Payment() {
             brand="MTN Mobile Money"
             brandColor="#FFCC00"
             code={MTN_CODE}
-            name="Elise"
+            name="Pacifique"
             onCopy={() => copy(MTN_CODE, "MTN code")}
-            onCall={() => call("*182*8*1*2158713#")}
+            onCall={() => call("*182*8*1*2145476#")}
             onPick={() => setMethod("MTN")}
             active={method === "MTN"}
             callLabel="Call *182#"

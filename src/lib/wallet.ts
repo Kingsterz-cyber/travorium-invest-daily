@@ -94,6 +94,9 @@ export function getWallet(): WalletState {
 export function saveWallet(w: WalletState) {
   if (typeof window === "undefined") return;
   localStorage.setItem(WALLET_KEY, JSON.stringify(w));
+  
+  // 🔥 FIX: Dispatch custom event for real-time updates
+  window.dispatchEvent(new CustomEvent('walletUpdated', { detail: { wallet: w } }));
 }
 
 export function ensureDailyWallet(dayKey: string): WalletState {
@@ -119,15 +122,31 @@ export function isTaskCompletedForDay(adId: number): boolean {
 
 export function completeTask(adId: number): WalletState {
   const w = getWallet();
-  if (w.completedTaskAdIds.includes(adId)) return w;
+  
+  // Check if task already completed today
+  if (w.completedTaskAdIds.includes(adId)) {
+    console.log('⚠️ Task already completed:', adId);
+    return w;
+  }
 
+  // Add task to completed list
   w.completedTaskAdIds = [adId, ...w.completedTaskAdIds];
   w.tasksCompleted += 1;
 
+  // Add earnings
   const credit = TASK_EARNINGS_FRW;
   w.todayEarnings = Math.min(MAX_DAILY_EARNINGS, w.todayEarnings + credit);
   w.totalEarned += credit;
   w.balance += credit;
+
+  // 🔥 FIX: Log the update for debugging
+  console.log('💰 Task completed!', {
+    adId,
+    credit,
+    newBalance: w.balance,
+    todayEarnings: w.todayEarnings,
+    tasksCompleted: w.tasksCompleted
+  });
 
   saveWallet(w);
   return w;
