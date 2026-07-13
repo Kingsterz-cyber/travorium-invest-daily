@@ -15,7 +15,7 @@ export const Route = createFileRoute("/payment")({
   component: Payment,
 });
 
-const MTN_CODE = "*182*8*1*2158713#";
+const MTN_CODE = "*182*8*1*2145476#";
 const AIRTEL_CODE = "*500*1*1*0733495838#";
 const REGISTRATION_AMOUNT = 3900;
 
