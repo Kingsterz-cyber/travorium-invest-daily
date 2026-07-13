@@ -1,11 +1,16 @@
-# TODO
+# TRAVORIUM Task Dashboard — Implementation TODO
 
-## Dashboard real-time updates after task completion
+- [x] Refactor `src/lib/wallet.ts` to make tasks ad-driven (5 tasks/day × 500 FRW) using `getDailyAds()` + day key persistence.
+- [x] Update `src/routes/dashboard.tsx` to render the 5 daily ad tasks (image/title/desc) and simulate watching ads with 0→100% loading + earnings 0→500.
+- [x] Align UI wording to 500 FRW/task and daily max 2,500 FRW.
 
-- [x] Inspect existing dashboard logic (src/routes/dashboard.tsx) and wallet storage (src/lib/wallet.ts)
-- [ ] Implement real-time refresh of wallet values while tasks are being watched/completed (without page refresh)
-- [ ] Ensure task completion UI marks the ad as completed immediately
-- [ ] Ensure balance/todayEarnings progress increments by +500 FRW per completed task
-- [x] Add a lightweight polling or cross-tab sync mechanism so the dashboard updates in real-time
-- [ ] Run lint/build/tests (if available) to confirm no TS errors
+
+
+- [ ] Ensure task completion credits wallet correctly and persists completed tasks for the day.
+- [ ] Align UI wording to 500 FRW/task and daily max 2,500 FRW.
+- [ ] Run typecheck/build to verify TS passes.
+- [ ] Add Vercel Analytics `<Analytics />` at the root level to track every page view.
+
+- [ ] Manually verify with local usage flow: register → dashboard → complete tasks → withdraw reflects new totals.
+
 

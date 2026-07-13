@@ -4,24 +4,18 @@ import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { TravoriumLogo } from "@/components/travorium/Logo";
 import { getUser } from "@/lib/travorium";
-import {
-  completeTask,
-  frw,
-  getWallet,
-  isTaskCompletedForDay,
-  ensureDailyWallet,
-  TASK_EARNINGS_FRW,
-  DAILY_TASK_COUNT,
-  type WalletState,
-} from "@/lib/wallet";
+import { completeTask, frw, getWallet, isTaskCompletedForDay, ensureDailyWallet, TASK_EARNINGS_FRW, DAILY_TASK_COUNT } from "@/lib/wallet";
 import { getTodayDailyAds, getTodayDayKey } from "@/lib/daily";
+
 import { Wallet, TrendingUp, History, Users, MessageCircle, Flame, X, Play, CheckCircle2, LogOut } from "lucide-react";
+import type { WalletState } from "@/lib/wallet";
+import type { DailyAdTask } from "@/lib/typed-daily-task";
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({
     meta: [
       { title: "My Daily Tasks — TRAVORIUM" },
-      { name: "description", content: "Complete daily tasks and earn 500 FRW per ad watched on TRAVORIUM." },
+      { name: "description", content: "Complete daily tasks and earn 100 FRW per ad watched on TRAVORIUM." },
     ],
   }),
   component: Dashboard,
@@ -32,26 +26,22 @@ function Dashboard() {
   const [name, setName] = useState("Investor");
   const [wallet, setWallet] = useState<WalletState | null>(null);
   const [activeAdId, setActiveAdId] = useState<number | null>(null);
-  const [forceRefresh, setForceRefresh] = useState(0);
   const dayKey = getTodayDayKey();
   const dailyAds = getTodayDailyAds();
+
+  // Defensive: avoid runtime crashes when dailyAds is undefined or wallet is malformed.
   const safeDailyAds = Array.isArray(dailyAds) ? dailyAds : [];
 
-  // 🔥 FIX: Force refresh wallet data
-  const refreshWallet = () => {
-    const latest = getWallet();
-    console.log('🔄 Refreshing wallet:', latest);
-    setWallet({ ...latest });
-    setForceRefresh(prev => prev + 1);
-  };
 
-  // Initialize wallet and ensure daily reset
+  // Ensure we reset daily counters when day changes.
   useEffect(() => {
+    if (!wallet) return;
     const w = ensureDailyWallet(dayKey);
     setWallet({ ...w });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dayKey]);
 
-  // Load user data
+
   useEffect(() => {
     const u = getUser();
     if (!u) {
@@ -60,103 +50,20 @@ function Dashboard() {
       return;
     }
     setName(u.fullName);
-    refreshWallet();
+    setWallet(getWallet());
   }, [navigate]);
 
-  // 🔥 FIX: Listen for wallet updates from custom event
-  useEffect(() => {
-    const handleWalletUpdate = (event: CustomEvent) => {
-      const newWallet = event.detail.wallet;
-      console.log('🔄 Wallet update received from event:', newWallet);
-      setWallet({ ...newWallet });
-    };
+  if (!wallet) return null;
 
-    window.addEventListener('walletUpdated', handleWalletUpdate as EventListener);
-    
-    return () => {
-      window.removeEventListener('walletUpdated', handleWalletUpdate as EventListener);
-    };
-  }, []);
-
-  // 🔥 FIX: Cross-tab sync with storage events + polling
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-
-    let mounted = true;
-
-    const readAndUpdate = () => {
-      if (!mounted) return;
-      const latest = getWallet();
-      setWallet((prev) => {
-        if (!prev) return latest;
-        if (
-          prev.balance === latest.balance &&
-          prev.todayEarnings === latest.todayEarnings &&
-          prev.totalEarned === latest.totalEarned &&
-          prev.tasksCompleted === latest.tasksCompleted &&
-          prev.completedTaskAdIds.join(",") === latest.completedTaskAdIds.join(",") &&
-          prev.dailyDayKey === latest.dailyDayKey
-        ) {
-          return prev;
-        }
-        console.log('🔄 Cross-tab wallet update detected');
-        return latest;
-      });
-    };
-
-    const onStorage = (e: StorageEvent) => {
-      if (e.key === "travorium_wallet") {
-        readAndUpdate();
-      }
-    };
-
-    window.addEventListener("storage", onStorage);
-    const intervalId = window.setInterval(readAndUpdate, 1000);
-
-    return () => {
-      mounted = false;
-      window.removeEventListener("storage", onStorage);
-      window.clearInterval(intervalId);
-    };
-  }, []);
-
-  // 🔥 FIX: Force refresh after task completion
   const onAdComplete = (adId: number) => {
-    console.log('🎯 Task completed:', adId);
-    
-    // Complete the task
     const w = completeTask(adId);
-    console.log('💰 New wallet after completion:', w);
-    
-    // Update state with new wallet
     setWallet({ ...w });
-    
-    // Close modal
     setActiveAdId(null);
-    
-    // Show success
-    toast.success(`🎉 Task Completed! +${TASK_EARNINGS_FRW} FRW earned`);
-    
-    // 🔥 FIX: Double-check and force refresh after short delay
-    setTimeout(() => {
-      const refreshed = getWallet();
-      console.log('🔄 Force refresh after delay:', refreshed);
-      setWallet({ ...refreshed });
-    }, 100);
+    toast.success(`Task Completed! +${TASK_EARNINGS_FRW} FRW earned`);
   };
 
-  if (!wallet) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gold mx-auto"></div>
-          <p className="mt-4 text-text-gray">Loading your dashboard...</p>
-        </div>
-      </div>
-    );
-  }
-
   const dailyGoal = TASK_EARNINGS_FRW * DAILY_TASK_COUNT;
+
 
   return (
     <div className="min-h-screen bg-background pb-24">
@@ -166,13 +73,6 @@ function Dashboard() {
           <Link to="/" className="min-w-0"><TravoriumLogo /></Link>
           <div className="flex shrink-0 items-center gap-2">
             <span className="hidden text-xs font-semibold text-text-gray sm:inline">Hi, {name}</span>
-            <button 
-              onClick={refreshWallet}
-              className="grid h-9 w-9 place-items-center rounded-full border border-border text-text-gray hover:border-gold hover:text-text-dark" 
-              aria-label="Refresh balance"
-            >
-              <span className="text-sm">🔄</span>
-            </button>
             <Link to="/" className="grid h-9 w-9 place-items-center rounded-full border border-border text-text-gray hover:border-gold hover:text-text-dark" aria-label="Sign out">
               <LogOut size={16} />
             </Link>
@@ -184,30 +84,19 @@ function Dashboard() {
         <div className="flex flex-col gap-1">
           <p className="text-sm text-text-gray">Welcome back,</p>
           <h1 className="font-display text-3xl font-bold text-text-dark md:text-4xl">{name} 👋</h1>
-          <p className="mt-1 text-sm text-text-gray">📋 Complete Tasks & Earn Daily</p>
-        </div>
-
-        {/* 🔥 FIX: Debug balance display */}
-        <div className="mt-2 text-xs text-text-gray">
-          Balance: {frw(wallet.balance)} | Tasks: {wallet.tasksCompleted}/{DAILY_TASK_COUNT}
+          <p className="mt-1 text-sm text-text-gray">📋 Complete Tasks &amp; Earn Daily</p>
         </div>
 
         {/* Wallet + Progress */}
         <div className="mt-6 grid gap-5 lg:grid-cols-[1.2fr_1fr]">
-          <WalletCard 
-            key={forceRefresh} 
-            w={wallet} 
-            onWithdraw={() => navigate({ to: "/withdraw" })} 
-          />
+          <WalletCard w={wallet} onWithdraw={() => navigate({ to: "/withdraw" })} />
           <ProgressCard w={wallet} goal={dailyGoal} />
         </div>
 
         {/* Tasks */}
         <div className="mt-10 flex items-end justify-between">
           <h2 className="font-display text-2xl font-bold text-text-dark">Today's Tasks</h2>
-          <span className="text-xs font-semibold text-text-gray">
-            {wallet.completedTaskAdIds.length} / {DAILY_TASK_COUNT} done
-          </span>
+          <span className="text-xs font-semibold text-text-gray">{wallet.completedTaskAdIds.length} / {DAILY_TASK_COUNT} done</span>
         </div>
 
         <div className="mt-4 grid gap-4 md:grid-cols-2">
@@ -218,14 +107,13 @@ function Dashboard() {
                 key={ad.id}
                 ad={ad}
                 done={isDone}
-                onStart={() => {
-                  console.log('🎬 Starting task:', ad.id);
-                  setActiveAdId(ad.id);
-                }}
+                onStart={() => setActiveAdId(ad.id)}
               />
             );
           })}
         </div>
+
+
 
         {/* Quick actions */}
         <div className="mt-10 grid grid-cols-2 gap-3 md:grid-cols-4">
@@ -239,17 +127,15 @@ function Dashboard() {
         <div className="mt-10 rounded-2xl border border-border bg-card p-4 text-sm">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <Stat label="Today's Earnings" value={frw(wallet.todayEarnings)} />
-            <Stat label="Tasks Completed" value={`${wallet.tasksCompleted}/${DAILY_TASK_COUNT}`} />
-            <Stat label="Streak" value={`${wallet.streak || 0} days`} icon={<Flame size={14} className="text-orange-500" />} />
+            <Stat label="Tasks Completed" value={`${wallet.tasksCompleted}/5`} />
+            <Stat label="Streak" value={`${wallet.streak} days`} icon={<Flame size={14} className="text-orange-500" />} />
           </div>
         </div>
       </div>
 
-      {/* 🔥 FIX: Ad Modal */}
       <AnimatePresence>
         {activeAdId && (
           <AdModal
-            key={activeAdId}
             ad={dailyAds.find((a) => a.id === activeAdId) ?? dailyAds[0]}
             done={isTaskCompletedForDay(activeAdId)}
             onClose={() => setActiveAdId(null)}
@@ -257,50 +143,8 @@ function Dashboard() {
           />
         )}
       </AnimatePresence>
+
     </div>
-  );
-}
-
-// --- Subcomponents ---
-
-// 🔥 FIX: Wallet Balance with Gold Flash Animation
-function WalletBalanceAnimated({ balance }: { balance: number }) {
-  const [displayBalance, setDisplayBalance] = useState(balance);
-  const [isFlashing, setIsFlashing] = useState(false);
-  
-  // Animate balance changes
-  useEffect(() => {
-    if (balance !== displayBalance) {
-      const start = displayBalance;
-      const end = balance;
-      const duration = 700;
-      const startTime = Date.now();
-      
-      // Trigger gold flash
-      setIsFlashing(true);
-      setTimeout(() => setIsFlashing(false), 600);
-      
-      const animate = () => {
-        const elapsed = Date.now() - startTime;
-        const progress = Math.min(elapsed / duration, 1);
-        const current = start + (end - start) * progress;
-        setDisplayBalance(Math.round(current));
-        
-        if (progress < 1) {
-          requestAnimationFrame(animate);
-        }
-      };
-      
-      animate();
-    }
-  }, [balance, displayBalance]);
-
-  return (
-    <p className={`mt-4 font-display text-4xl font-black md:text-5xl transition-colors duration-300 ${
-      isFlashing ? 'text-gold' : 'text-text-dark'
-    }`}>
-      {frw(displayBalance)}
-    </p>
   );
 }
 
@@ -312,7 +156,7 @@ function WalletCard({ w, onWithdraw }: { w: WalletState; onWithdraw: () => void 
         <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest">
           <Wallet size={14} /> My Wallet
         </div>
-        <WalletBalanceAnimated balance={w.balance} />
+        <p className="mt-4 font-display text-4xl font-black md:text-5xl">{frw(w.balance)}</p>
         <p className="text-xs opacity-70">Total balance</p>
 
         <div className="mt-6 grid grid-cols-3 gap-3 text-xs">
@@ -359,12 +203,7 @@ function ProgressCard({ w, goal }: { w: WalletState; goal: number }) {
           <p className="text-xs text-text-gray">of {frw(goal)} goal</p>
         </div>
         <div className="mt-3 h-3 w-full overflow-hidden rounded-full bg-muted">
-          <motion.div
-            className="h-full rounded-full bg-gradient-to-r from-green to-green-dark"
-            initial={{ width: 0 }}
-            animate={{ width: `${pct}%` }}
-            transition={{ duration: 0.8 }}
-          />
+          <motion.div className="h-full rounded-full bg-gradient-to-r from-green to-green-dark" initial={{ width: 0 }} animate={{ width: `${pct}%` }} transition={{ duration: 0.8 }} />
         </div>
         <p className="mt-2 text-xs text-text-gray">Complete 5 tasks to earn {frw(goal)} daily</p>
       </div>
@@ -383,6 +222,7 @@ function ProgressCard({ w, goal }: { w: WalletState; goal: number }) {
           ))}
         </div>
       </div>
+
     </div>
   );
 }
@@ -413,6 +253,7 @@ function TaskCard({
         </div>
       </div>
 
+
       <div className="mt-4">
         <div className="mb-2 flex items-center justify-between text-xs font-medium text-text-gray">
           <span>Loading</span>
@@ -420,17 +261,13 @@ function TaskCard({
         </div>
         <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
           <div
-            className={`h-full rounded-full transition-all duration-700 ${
-              done ? "bg-green" : "bg-gradient-to-r from-gold to-gold-dark"
-            }`}
+            className={`h-full rounded-full transition-all duration-700 ${done ? "bg-green" : "bg-gradient-to-r from-gold to-gold-dark"}`}
             style={{ width: `${done ? 100 : 0}%` }}
           />
         </div>
         <div className="mt-2 flex items-center justify-between text-xs">
           <span className="text-text-gray">Earnings</span>
-          <span className="font-semibold text-text-dark">
-            {done ? TASK_EARNINGS_FRW : 0} / {TASK_EARNINGS_FRW} FRW
-          </span>
+          <span className="font-semibold text-text-dark">{done ? TASK_EARNINGS_FRW : 0} / {TASK_EARNINGS_FRW} FRW</span>
         </div>
       </div>
 
@@ -454,6 +291,7 @@ function TaskCard({
     </motion.div>
   );
 }
+
 
 function QuickAction({ icon, label, onClick, primary }: { icon: React.ReactNode; label: string; onClick: () => void; primary?: boolean }) {
   return (
@@ -479,7 +317,6 @@ function Stat({ label, value, icon }: { label: string; value: string; icon?: Rea
   );
 }
 
-// 🔥 FIX: Ad Modal Component with Real-Time Earnings
 function AdModal({
   ad,
   done,
@@ -498,55 +335,35 @@ function AdModal({
   const startedAt = useRef(Date.now());
   const total = 30;
 
-  // Reset when modal opens
-  useEffect(() => {
-    if (done) {
-      setInternalDone(true);
-      setProgress(100);
-      setEarnings(TASK_EARNINGS_FRW);
-      return;
-    }
-    setProgress(0);
-    setEarnings(0);
-    setInternalDone(false);
-    startedAt.current = Date.now();
-  }, [ad.id, done]);
 
-  // Real-time progress and earnings
   useEffect(() => {
     if (done || internalDone) return;
 
-    const interval = setInterval(() => {
+    const id = setInterval(() => {
       const elapsed = (Date.now() - startedAt.current) / 1000;
       const p = Math.min(100, (100 * elapsed) / total);
-      
       setProgress(Math.floor(p));
       setEarnings(Math.floor((TASK_EARNINGS_FRW * p) / 100));
       setRemaining(Math.max(0, Math.ceil(total - elapsed)));
 
       if (p >= 100) {
         setInternalDone(true);
-        clearInterval(interval);
-        // Complete the task
-        onComplete(ad.id);
+        clearInterval(id);
       }
-    }, 50);
+    }, 100);
 
-    return () => clearInterval(interval);
-  }, [done, internalDone, ad.id, onComplete, total]);
+    return () => clearInterval(id);
+  }, [done, internalDone, total]);
+
 
   return (
     <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
+      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
       className="fixed inset-0 z-50 grid place-items-center bg-black/60 p-4 backdrop-blur-sm"
       onClick={onClose}
     >
       <motion.div
-        initial={{ scale: 0.9, y: 20 }}
-        animate={{ scale: 1, y: 0 }}
-        exit={{ scale: 0.9, y: 20 }}
+        initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }}
         className="w-full max-w-md overflow-hidden rounded-3xl bg-card shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
@@ -565,7 +382,7 @@ function AdModal({
             <img src={ad.image} alt={ad.title} className="h-56 w-full object-contain" />
           </div>
           <div className="absolute inset-x-0 bottom-3 mx-4 rounded-full bg-black/70 px-3 py-1 text-center text-xs font-medium text-white backdrop-blur">
-            {done || internalDone ? "✅ Ad Complete!" : `⏱️ ${remaining}s remaining`}
+            {done ? "Ad complete" : `⏱️ ${remaining}s remaining`}
           </div>
         </div>
 
@@ -576,51 +393,34 @@ function AdModal({
           </div>
           <div className="h-3 w-full overflow-hidden rounded-full bg-muted">
             <div
-              className={`h-full rounded-full transition-all duration-100 ${
-                done || internalDone ? "bg-green" : "bg-gradient-to-r from-gold to-gold-dark"
-              }`}
+              className={`h-full rounded-full transition-all duration-100 ${done ? "bg-green" : "bg-gradient-to-r from-gold to-gold-dark"}`}
               style={{ width: `${progress}%` }}
             />
           </div>
-          
-          <div className="mt-3 flex items-center justify-between">
-            <p className="text-xs text-text-gray">💰 Earnings</p>
-            <p className="text-sm font-bold text-text-dark">
-              {earnings} / {TASK_EARNINGS_FRW} FRW
-            </p>
-          </div>
+          <p className="mt-2 text-center text-sm font-semibold text-text-dark">
+            {earnings} / {TASK_EARNINGS_FRW} FRW
+          </p>
+
 
           <AnimatePresence>
-            {(internalDone || done) && (
+            {done && (
               <motion.div
-                initial={{ scale: 0.8, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
+                initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
                 className="mt-4 rounded-2xl bg-green/10 p-4 text-center"
               >
                 <p className="flex items-center justify-center gap-2 font-semibold text-green">
-                  <CheckCircle2 size={18} /> 
-                  Task Completed! +{TASK_EARNINGS_FRW} FRW earned
+                  <CheckCircle2 size={18} /> Task Completed! +100 FRW earned
                 </p>
+                <p className="mt-1 text-xs text-text-gray">Keep going! Complete all 5 tasks for maximum earnings.</p>
               </motion.div>
             )}
           </AnimatePresence>
 
           <button
-            onClick={() => {
-              if (internalDone || done) {
-                onComplete(ad.id);
-                onClose();
-              } else {
-                onClose();
-              }
-            }}
-            className={`mt-5 w-full rounded-full py-3 text-sm font-semibold ${
-              internalDone || done
-                ? "btn-gold"
-                : "border border-border bg-white text-text-dark hover:border-gold"
-            }`}
+            onClick={() => (done ? onComplete(ad.id) : onClose())}
+            className={`mt-5 w-full rounded-full py-3 text-sm font-semibold ${done ? "btn-gold" : "border border-border bg-white text-text-dark hover:border-gold"}`}
           >
-            {internalDone || done ? "🎉 Claim & Continue" : "Close"}
+            {done ? "Claim & Close" : "Close"}
           </button>
         </div>
       </motion.div>
